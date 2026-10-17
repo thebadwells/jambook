@@ -77,6 +77,9 @@ svg { display: block; }
 }
 .iconbtn { display: grid; place-items: center; width: var(--tap); padding: 0; border-radius: 50%; color: var(--accent); background: transparent; flex: none; }
 .iconbtn svg { width: 22px; height: 22px; }
+.iconbtn:disabled { opacity: .4; }
+.navactions { display: flex; align-items: center; gap: 4px; }
+.bundle-note { color: var(--text-2); font-size: 13px; text-decoration: none; padding: 0 8px; }
 
 /* Song page bar */
 .song-nav { display: flex; align-items: center; gap: 12px; }
@@ -144,7 +147,7 @@ svg { display: block; }
 /* Sections fill the column: rows stretch so bars grow taller on short songs (capped so they
    never become cavernous). fitChart() picks the font size; this handles the leftover height. */
 .sections { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr)); grid-auto-rows: auto; align-content: stretch; gap: .45em .8em; overflow: hidden; }
-.sec { display: flex; flex-direction: column; min-height: 0; }
+.sec { display: flex; flex-direction: column; } /* no min-height:0 — sections must report overflow so fitChart() shrinks the type */
 .sec h3 { margin: 0 0 .2em 2px; font-size: max(13px, .32em); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-2); }
 .rows { flex: 1; display: flex; flex-direction: column; gap: 3px; }
 .row { flex: 1 1 auto; max-height: 3.4em; display: grid; grid-template-columns: repeat(var(--bars), minmax(0, 1fr)); gap: 3px; }

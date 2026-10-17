@@ -5,7 +5,7 @@
 const CACHE = 'jambook-v1';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/style.css',
-  'js/music.js', 'js/song-format.js', 'js/fretboard.js', 'js/app.js',
+  'js/music.js', 'js/song-format.js', 'js/fretboard.js', 'js/export.js', 'js/app.js',
   'js/instruments/guitar.js', 'js/instruments/mandolin.js',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/favicon-32.png',
   'songs/index.txt',

@@ -16,6 +16,7 @@
   const ICON = {
     back: '<svg viewBox="0 0 12 20" aria-hidden="true"><path d="M10 2 2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     search: '<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m13 13 5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+    share: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10H6.5A1.5 1.5 0 0 0 5 11.5v8A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5H16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     sun: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg>',
     moon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor"/></svg>',
   };
@@ -36,6 +37,11 @@
   }
 
   async function load() {
+    if (J.bundle) { // shared single-file copy: songs are inlined
+      songs = J.bundle.songs.map(({ file, text }) => J.parseSong(text, file.replace(/\.song$/, '')));
+      songs.sort((a, b) => a.title.localeCompare(b.title));
+      return;
+    }
     const list = (await (await fetch('songs/index.txt')).text()).split('\n').map(s => s.trim()).filter(Boolean);
     // One missing song file (e.g. offline before it was ever cached) shouldn't break the rest.
     const results = await Promise.allSettled(list.map(async file => {
@@ -65,7 +71,12 @@
       <header class="navbar home-nav">
         <div class="navrow">
           <h1 class="largetitle">Jambook</h1>
-          ${themeButton()}
+          <div class="navactions">
+            ${J.bundle
+              ? `<a class="bundle-note" href="${esc(J.bundle.source)}">Shared copy · ${esc(J.bundle.builtAt.slice(0, 10))}</a>`
+              : `<button class="iconbtn" data-share aria-label="Share a copy of Jambook">${ICON.share}</button>`}
+            ${themeButton()}
+          </div>
         </div>
         <label class="searchfield">${ICON.search}
           <input type="search" class="search" placeholder="Search ${songs.length} songs" value="${esc(query)}"
@@ -116,6 +127,17 @@
     });
     app.querySelectorAll('[data-type]').forEach(b => b.onclick = () => { store.set('homeType', b.dataset.type); update(); });
     wireTheme(renderHome);
+    const share = app.querySelector('[data-share]');
+    if (share) share.onclick = async () => {
+      share.disabled = true;
+      toast('Preparing a copy…');
+      try {
+        const result = await J.exportBundle.shareBundle();
+        toast(result === 'downloaded' ? 'Saved jambook.html' : result === 'shared' ? 'Shared' : '', 2500);
+      } catch (err) {
+        toast(`Couldn't make a copy: ${err.message}`, 4000);
+      } finally { share.disabled = false; }
+    };
     update();
   }
 
@@ -270,17 +292,24 @@
   let resizeTimer;
   window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(fitAll, 100); });
 
+  // Bottom notice. With `ms` it fades out; with an action it stays until tapped.
+  function toast(message, ms, action) {
+    document.querySelector('.toast')?.remove();
+    if (!message) return;
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.setAttribute('role', 'status');
+    t.innerHTML = `<span>${esc(message)}</span>${action ? `<button>${esc(action.label)}</button>` : ''}`;
+    if (action) t.querySelector('button').onclick = action.run;
+    document.body.append(t);
+    if (ms) setTimeout(() => t.remove(), ms);
+  }
+
   // Offline support (see sw.js). When a background refresh finds new content, offer a reload.
-  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  if ('serviceWorker' in navigator && location.protocol !== 'file:' && !J.bundle) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
     navigator.serviceWorker.addEventListener('message', e => {
-      if (e.data?.type !== 'updated' || document.querySelector('.toast')) return;
-      const t = document.createElement('div');
-      t.className = 'toast';
-      t.setAttribute('role', 'status');
-      t.innerHTML = '<span>Jambook was updated</span><button>Reload</button>';
-      t.querySelector('button').onclick = () => location.reload();
-      document.body.append(t);
+      if (e.data?.type === 'updated') toast('Jambook was updated', 0, { label: 'Reload', run: () => location.reload() });
     });
   }
 

@@ -8,6 +8,13 @@ Live at https://thebadwells.github.io/jambook/ (GitHub Pages, deploys on every p
 On iPad: open it in Safari → Share → **Add to Home Screen**. After the first visit it works fully
 offline; when online it refreshes in the background and shows an "updated · Reload" notice.
 
+## Sharing a copy
+
+The share button on the home screen builds one self-contained `jambook-<date>.html` (all code and
+songs inlined, works offline in any browser) and opens the share sheet, or downloads it on a
+computer. It's built from the published files only, never from on-device data. The live link is
+still the easiest way to share with iPhone/iPad users, since iOS previews HTML files without running them.
+
 ## Run it locally
 
 ```sh
