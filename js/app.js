@@ -70,9 +70,9 @@
     })));
     const ideas = song.breaks.filter(b => !b.instrument || b.instrument === st.instrument);
     const breaks = `
-      <div class="breaks"${st.breaksOpen ? '' : ' hidden'}>
-        <div class="breaks-body">
-          <h3>Breaks</h3>
+      <div class="breaks${st.breaksOpen ? ' open' : ''}">
+        <button class="breaks-bar" data-act="breaks" aria-expanded="${st.breaksOpen}">Breaks <span aria-hidden="true">${st.breaksOpen ? '▾' : '▴'}</span></button>
+        <div class="breaks-body"${st.breaksOpen ? '' : ' hidden'}>
           ${ideas.length ? `<ul class="ideas">${ideas.map(b => `<li>${esc(b.text)}</li>`).join('')}</ul>` : ''}
           <p class="scale"><b>Scale:</b> ${esc(scale.name)} — ${scale.notes.map(esc).join(' ')}</p>
           <p class="tabnote">Starter break: chord tones of each bar${view.chartKey.pc === key.pc ? '' : ' (tab relative to the capo)'}. Fill in the gaps with the melody.</p>
@@ -101,7 +101,6 @@
             ${Object.entries(J.instruments).map(([id, inst]) => `<button data-inst="${id}" class="${id === st.instrument ? 'on' : ''}">${inst.label}</button>`).join('')}
           </div>
           <button class="toggle${st.numbers ? ' on' : ''}" data-act="numbers" aria-label="Show Nashville numbers">123</button>
-          <button class="toggle${st.breaksOpen ? ' on' : ''}" data-act="breaks" aria-pressed="${st.breaksOpen}">Breaks</button>
         </div>
       </header>
       <main class="songpage">
@@ -154,7 +153,6 @@
   function fitAll() {
     if (window.matchMedia('(max-width: 760px)').matches) return;
     fitChart(app.querySelector('.sections'));
-    fit(app.querySelector('.side'), 9, 22);
   }
 
   function route() {

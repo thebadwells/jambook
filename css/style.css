@@ -47,12 +47,15 @@ a { color: inherit; }
 .chart { overflow: hidden; padding: 12px 16px; display: flex; flex-direction: column; gap: 16px; position: relative; }
 .sections { display: grid; grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr)); align-content: start; gap: .35em 1em; overflow: hidden; flex: none; }
 
-/* Breaks: opened from the top bar, covers the chart. Separate so it can be reworked later. */
-.sections { height: 100%; }
-.breaks { position: absolute; inset: 0; background: var(--bg); padding: 12px 16px; z-index: 2; }
-.breaks[hidden] { display: none; }
-.breaks-body { overflow: auto; height: 100%; font-size: 17px; }
-.breaks-body h3 { margin: 0 0 .4em; font-size: .85em; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); }
+/* Breaks: a bar under the chart; opening it gives the lower part of the column to the breaks
+   and the chart refits above. Kept separate so it can be reworked later. */
+.sections { flex: 1 1 0; min-height: 0; }
+.breaks { flex: none; display: flex; flex-direction: column; min-height: 0; border-top: 1px solid var(--line); margin: 0 -16px -12px; }
+.breaks.open { flex: 0 0 55%; }
+.breaks-bar { min-height: 44px; border: none; border-radius: 0; background: transparent; text-align: left; padding: 0 16px; font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); }
+.breaks-bar span { float: right; font-size: 18px; }
+.breaks-body { flex: 1; min-height: 0; overflow: auto; padding: 0 16px 12px; font-size: 17px; }
+.breaks-body[hidden] { display: none; }
 .breaks-body h4 { margin: .6em 0 .2em; font-size: .8em; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
 .ideas { margin: 0 0 .6em; padding-left: 1.2em; }
 .ideas li { margin-bottom: .25em; }
@@ -67,14 +70,15 @@ a { color: inherit; }
 .bar.split .ch { font-size: .8em; }
 .ch { white-space: nowrap; }
 
-.side { overflow: hidden; border-left: 1px solid var(--line); padding: 12px 14px; display: flex; flex-direction: column; gap: .8em; }
-.banner { width: 100%; font-weight: 700; font-size: 1.05em; background: var(--panel); }
-.banner small { display: block; font-weight: 400; font-size: .7em; color: var(--muted); }
+/* Side panel uses fixed sizes and scrolls if needed, so diagrams never shrink below legible. */
+.side { overflow: auto; border-left: 1px solid var(--line); padding: 12px 14px; display: flex; flex-direction: column; gap: 14px; font-size: 16px; }
+.banner { width: 100%; flex: none; font-weight: 700; font-size: 17px; background: var(--panel); }
+.banner small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
 .banner:disabled { cursor: default; opacity: 1; }
-.diagrams { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.6em, 1fr)); gap: .4em .6em; }
+.diagrams { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 14px 10px; }
 figure { margin: 0; text-align: center; }
-figcaption { font-weight: 800; font-size: 1em; }
-.diagram { width: 100%; max-width: 6.5em; color: var(--muted); }
+figcaption { font-weight: 800; font-size: 19px; margin-bottom: 2px; }
+.diagram { display: block; width: 100%; max-width: 112px; margin: 0 auto; color: var(--muted); }
 .diagram .dot { fill: var(--text); }
 .diagram text { fill: currentColor; font-size: 13px; text-anchor: middle; }
 .diagram .fretno { text-anchor: start; font-size: 12px; }
@@ -91,8 +95,8 @@ figcaption { font-weight: 800; font-size: 1em; }
   .controls { width: 100%; justify-content: space-between; }
   .songpage { grid-template-columns: 1fr; height: auto; }
   .chart, .side { overflow: visible; }
-  .breaks { position: static; padding: 0; }
+  .breaks.open { flex: none; }
   .breaks-body { overflow-x: auto; }
-  .sections { height: auto; }
+  .sections { flex: none; }
   .side { border-left: none; border-top: 1px solid var(--line); }
 }

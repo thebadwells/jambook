@@ -48,10 +48,11 @@
   }
 
   function diagramSvg(frets, label) {
-    const strings = frets.length, rows = 4;
+    const strings = frets.length;
     const fretted = frets.filter(f => f > 0);
     const hi = fretted.length ? Math.max(...fretted) : 0;
-    const base = hi <= rows ? 1 : Math.min(...fretted);
+    const base = hi <= 4 ? 1 : Math.min(...fretted);
+    const rows = Math.max(4, hi - base + 1); // wide shapes (e.g. mandolin F 5-3-0-1) get an extra fret
     const w = 100, gap = (w - 20) / (strings - 1), top = 22, fh = 18;
     const x = s => 10 + s * gap;
     let svg = `<svg viewBox="0 0 ${w + 16} ${top + rows * fh + 6}" class="diagram" role="img" aria-label="${label} chord: ${frets.map(f => (f < 0 ? 'x' : f)).join(' ')}">`;
