@@ -2,14 +2,26 @@
 
 A bluegrass fake book for jam sessions: plain HTML/CSS/JS, no build step.
 
-## Run it
+## Use it
+
+Live at https://thebadwells.github.io/jambook/ (GitHub Pages, deploys on every push to `main`).
+On iPad: open it in Safari → Share → **Add to Home Screen**. After the first visit it works fully
+offline; when online it refreshes in the background and shows an "updated · Reload" notice.
+
+## Run it locally
 
 ```sh
 python3 -m http.server 8000
 ```
 
-Open http://localhost:8000 on the Mac. On an iPad on the same Wi-Fi, open
-`http://<mac-name>.local:8000` (the songs load with `fetch`, so it must be served over http, not opened as a file).
+Open http://localhost:8000, or `http://<mac-name>.local:8000` from an iPad on the same Wi-Fi
+(songs load with `fetch`, so it must be served over http, not opened as a file).
+
+## Offline (sw.js)
+
+The service worker serves everything cache-first and refreshes in the background. Songs listed in
+`songs/index.txt` are cached automatically. If you add a new JS/CSS file, add it to `SHELL` in
+`sw.js` so it's available on a first offline launch.
 
 ## Layout
 

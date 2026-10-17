@@ -37,10 +37,13 @@
 
   async function load() {
     const list = (await (await fetch('songs/index.txt')).text()).split('\n').map(s => s.trim()).filter(Boolean);
-    songs = await Promise.all(list.map(async file => {
-      const text = await (await fetch('songs/' + file)).text();
-      return J.parseSong(text, file.replace(/\.song$/, ''));
+    // One missing song file (e.g. offline before it was ever cached) shouldn't break the rest.
+    const results = await Promise.allSettled(list.map(async file => {
+      const res = await fetch('songs/' + file);
+      if (!res.ok) throw new Error(file);
+      return J.parseSong(await res.text(), file.replace(/\.song$/, ''));
     }));
+    songs = results.filter(r => r.status === 'fulfilled').map(r => r.value);
     songs.sort((a, b) => a.title.localeCompare(b.title));
   }
 
@@ -266,6 +269,20 @@
   window.addEventListener('hashchange', route);
   let resizeTimer;
   window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(fitAll, 100); });
+
+  // Offline support (see sw.js). When a background refresh finds new content, offer a reload.
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.addEventListener('message', e => {
+      if (e.data?.type !== 'updated' || document.querySelector('.toast')) return;
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.setAttribute('role', 'status');
+      t.innerHTML = '<span>Jambook was updated</span><button>Reload</button>';
+      t.querySelector('button').onclick = () => location.reload();
+      document.body.append(t);
+    });
+  }
 
   load().then(route).catch(err => {
     app.innerHTML = `<p class="errors">Couldn't load songs (${esc(err.message)}). Serve this folder over http — see README.</p>`;
