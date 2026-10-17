@@ -1,0 +1,20 @@
+title: Wabash Cannonball
+key: G
+type: song
+form: verse/chorus
+feel: 2/4, medium
+rights: public-domain
+cue: "From the great Atlantic Ocean to the wide Pacific shore"
+verified: false
+
+[Verse]
+| 1 | 1 | 4 | 4 |
+| 5 | 5 | 1 | 1 |
+| 1 | 1 | 4 | 4 |
+| 5 | 5 | 1 | 1 |
+
+[Chorus]
+| 1 | 1 | 4 | 4 |
+| 5 | 5 | 1 | 1 |
+| 1 | 1 | 4 | 4 |
+| 5 | 5 | 1 | 1 |

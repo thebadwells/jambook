@@ -1,0 +1,21 @@
+title: I'll Fly Away
+key: G
+type: song
+form: verse/chorus
+feel: 4/4, medium
+rights: copyrighted
+cue: "Some glad morning when this life is over"
+notes: Everybody sings the chorus.
+verified: false
+
+[Verse]
+| 1 | 1 | 4 | 1 |
+| 1 | 1 | 5 | 5 |
+| 1 | 1 | 4 | 1 |
+| 1 | 5 | 1 | 1 |
+
+[Chorus]
+| 1 | 1 | 4 | 1 |
+| 1 | 1 | 5 | 5 |
+| 1 | 1 | 4 | 1 |
+| 1 | 5 | 1 | 1 |

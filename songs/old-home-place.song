@@ -1,0 +1,21 @@
+title: Old Home Place
+key: G
+type: song
+form: verse/chorus
+feel: 2/4, fast
+rights: copyrighted
+cue: "It's been ten long years since I left my home"
+notes: Chords vary between jams; check this one against yours.
+verified: false
+
+[Verse]
+| 1 | 1 | 4 | 1 |
+| 1 | 1 | 5 | 5 |
+| 1 | 1 | 4 | 1 |
+| 1 | 5 | 1 | 1 |
+
+[Chorus]
+| 4 | 4 | 1 | 1 |
+| 4 | 4 | 5 | 5 |
+| 1 | 1 | 4 | 1 |
+| 1 | 5 | 1 | 1 |

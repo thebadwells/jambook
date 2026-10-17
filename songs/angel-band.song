@@ -1,0 +1,29 @@
+title: Angel Band
+key: G
+type: song
+form: verse/chorus
+feel: 4/4, slow
+rights: public-domain
+notes: Hymn, 1860. Often sung with harmony on the chorus.
+verified: false
+
+[Verse]
+| 1 | 1 | 4 | 1 |
+| 1 | 1 | 5 | 5 |
+| 1 | 1 | 4 | 1 |
+| 1 | 5 | 1 | 1 |
+
+[Chorus]
+| 1 | 1 | 4 | 1 |
+| 1 | 5 | 1 | 1 |
+
+[lyrics]
+My latest sun is sinking fast
+My race is nearly run
+My strongest trials now are past
+My triumph is begun
+
+O come, angel band
+Come and around me stand
+O bear me away on your snowy wings
+To my immortal home

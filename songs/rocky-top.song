@@ -1,0 +1,20 @@
+title: Rocky Top
+key: G
+type: song
+form: verse/chorus
+feel: 2/4, fast
+rights: copyrighted
+cue: "Wish that I was on ol' Rocky Top"
+notes: Chorus opens on the 6m and uses the b7.
+notes: Chords vary between jams; check this one against yours.
+verified: false
+
+[Verse]
+| 1 | 1 | 4 | 1 |
+| 1 | 1 | 5 | 1 |
+| 1 | 1 | 4 | 1 |
+| 1 | 1 | 5 | 1 |
+
+[Chorus]
+| 6m | 5 | b7 | 4 |
+| 1 | 1 | 5 | 1 |

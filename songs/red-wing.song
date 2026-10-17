@@ -1,0 +1,21 @@
+title: Red Wing
+key: G
+type: song
+form: verse/chorus
+feel: 2/4, medium
+rights: public-domain
+cue: "There once lived an Indian maid"
+notes: Usually played as an instrumental at jams.
+verified: false
+
+[Verse]
+| 1 | 1 | 4 | 1 |
+| 1 | 1 | 2 | 5 |
+| 1 | 1 | 4 | 1 |
+| 1 | 5 | 1 | 1 |
+
+[Chorus]
+| 4 | 4 | 1 | 1 |
+| 2 | 2 | 5 | 5 |
+| 1 | 1 | 4 | 1 |
+| 1 | 5 | 1 | 1 |

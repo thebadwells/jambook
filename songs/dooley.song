@@ -1,0 +1,19 @@
+title: Dooley
+key: G
+type: song
+form: verse/chorus
+feel: 2/4, fast
+rights: copyrighted
+cue: "Dooley was a good old man"
+notes: Chords vary between jams; check this one against yours.
+verified: false
+
+[Verse]
+| 1 | 1 | 1 | 1 |
+| 4 | 4 | 1 | 1 |
+| 1 | 1 | 1 | 1 |
+| 5 | 5 | 1 | 1 |
+
+[Chorus]
+| 1 | 1 | 4 | 1 |
+| 1 | 1 | 5 | 1 |
