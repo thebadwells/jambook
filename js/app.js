@@ -20,20 +20,81 @@
     songs.sort((a, b) => a.title.localeCompare(b.title));
   }
 
-  // ---------- Home (minimal; full home screen is build step 4) ----------
+  // ---------- Home ----------
+  // Jam-common keys first; any other key in the library is appended in this order.
+  const KEY_ORDER = ['G', 'A', 'D', 'C', 'F', 'E', 'Bb', 'B', 'Em', 'Am', 'Dm', 'Bm', 'Gm'];
+  const RECENT_MAX = 6;
+  let query = ''; // kept while you visit a song and come back
+
+  const norm = t => t.toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const prettyKey = k => k.replace(/^([A-G])b/, '$1♭').replace(/^([A-G])#/, '$1♯');
+
   function renderHome() {
-    const keys = [...new Set(songs.map(s => s.key))].sort();
-    const active = store.get('homeKey', 'all');
-    const shown = songs.filter(s => active === 'all' || s.key === active);
+    const counts = {};
+    songs.forEach(s => { counts[s.key] = (counts[s.key] || 0) + 1; });
+    const keys = Object.keys(counts).sort((a, b) => rank(a) - rank(b));
+    function rank(k) { const i = KEY_ORDER.indexOf(k); return i < 0 ? 99 : i; }
+
     app.innerHTML = `
-      <header class="topbar"><h1>Jambook</h1></header>
-      <nav class="keygrid">
-        ${['all', ...keys].map(k => `<button class="keybtn${k === active ? ' on' : ''}" data-key="${k}">${k === 'all' ? 'All' : esc(k)}</button>`).join('')}
+      <header class="topbar home-top">
+        <h1>Jambook</h1>
+        <input type="search" class="search" placeholder="Search ${songs.length} songs" value="${esc(query)}"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Search songs">
+      </header>
+      <nav class="keygrid" aria-label="Key">
+        <button class="keybtn" data-key="all">All<small>${songs.length}</small></button>
+        ${keys.map(k => `<button class="keybtn" data-key="${esc(k)}">${esc(prettyKey(k))}<small>${counts[k]}</small></button>`).join('')}
       </nav>
-      <ul class="songlist">
-        ${shown.map(s => `<li><a href="#/song/${s.id}"><span>${esc(s.title)}</span><small>${esc(s.key)} · ${s.type === 'instrumental' ? 'tune' : 'song'}</small></a></li>`).join('')}
-      </ul>`;
-    app.querySelectorAll('.keybtn').forEach(b => b.onclick = () => { store.set('homeKey', b.dataset.key); renderHome(); });
+      <div class="homebar">
+        <div class="seg" role="group" aria-label="Type">
+          ${[['all', 'All'], ['song', 'Songs'], ['instrumental', 'Tunes']].map(([v, l]) => `<button data-type="${v}">${l}</button>`).join('')}
+        </div>
+        <p class="count" aria-live="polite"></p>
+      </div>
+      <section class="recent"></section>
+      <ul class="songlist"></ul>`;
+
+    const search = app.querySelector('.search');
+    const update = () => {
+      const key = store.get('homeKey', 'all'), type = store.get('homeType', 'all');
+      const q = norm(query);
+      app.querySelectorAll('[data-key]').forEach(b => b.classList.toggle('on', !q && b.dataset.key === key));
+      app.querySelectorAll('[data-type]').forEach(b => b.classList.toggle('on', b.dataset.type === type));
+      // A search looks across every key, so a song is never hidden behind the key filter.
+      const shown = songs.filter(s => (type === 'all' || s.type === type) &&
+        (q ? norm(s.title).includes(q) : key === 'all' || s.key === key));
+      app.querySelector('.count').textContent =
+        q ? `${shown.length} match${shown.length === 1 ? '' : 'es'}` : `${shown.length} ${key === 'all' ? 'total' : 'in ' + prettyKey(key)}`;
+      app.querySelector('.songlist').innerHTML = shown.length
+        ? shown.map(songItem).join('')
+        : `<li class="empty">No songs match “${esc(query)}”.</li>`;
+      const recent = store.get('recent', []).map(id => songs.find(s => s.id === id)).filter(Boolean);
+      app.querySelector('.recent').innerHTML = !q && recent.length
+        ? `<h2>Recent</h2><div class="chips">${recent.map(s => `<a class="chip" href="#/song/${s.id}">${esc(s.title)}</a>`).join('')}</div>` : '';
+    };
+
+    search.oninput = () => { query = search.value; update(); };
+    search.onkeydown = e => { // Enter opens the top result
+      const first = app.querySelector('.songlist a');
+      if (e.key === 'Enter' && first) location.hash = first.getAttribute('href');
+    };
+    app.querySelectorAll('[data-key]').forEach(b => b.onclick = () => {
+      store.set('homeKey', b.dataset.key); query = ''; search.value = ''; update();
+    });
+    app.querySelectorAll('[data-type]').forEach(b => b.onclick = () => { store.set('homeType', b.dataset.type); update(); });
+    update();
+  }
+
+  function songItem(s) {
+    return `<li><a href="#/song/${s.id}">
+      <span class="t">${esc(s.title)}</span>
+      <span class="k">${esc(prettyKey(s.key))}</span>
+      <small>${s.type === 'instrumental' ? 'tune' : 'song'}${s.form ? ' · ' + esc(s.form) : ''}</small>
+    </a></li>`;
+  }
+
+  function addRecent(id) {
+    store.set('recent', [id, ...store.get('recent', []).filter(r => r !== id)].slice(0, RECENT_MAX));
   }
 
   // ---------- Song page ----------
@@ -160,6 +221,7 @@
     const song = m && songs.find(s => s.id === decodeURIComponent(m[1]));
     breaksOpen = false;
     document.body.classList.toggle('on-song', !!song);
+    if (song) addRecent(song.id);
     song ? renderSong(song) : renderHome();
     window.scrollTo(0, 0);
   }
