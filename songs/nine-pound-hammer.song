@@ -1,0 +1,16 @@
+title: Nine Pound Hammer
+key: A
+type: song
+form: verse/chorus
+feel: 2/4, fast
+rights: unknown
+cue: "This nine pound hammer is a little too heavy"
+verified: false
+
+[Verse]
+| 1 | 1 | 4 | 1 |
+| 1 | 1 | 5 | 5 |
+
+[Chorus]
+| 1 | 1 | 4 | 1 |
+| 1 | 5 | 1 | 1 |
