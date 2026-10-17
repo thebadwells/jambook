@@ -10,6 +10,30 @@
     set(k, v) { try { localStorage.setItem('jambook:' + k, JSON.stringify(v)); } catch { /* private mode */ } },
   };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // Display-only: Bb → B♭, F# → F♯, b7 → ♭7.
+  const pretty = t => String(t).replace(/([A-G])b/g, '$1♭').replace(/(^|\/)b(?=\d)/g, '$1♭').replace(/#/g, '♯');
+
+  const ICON = {
+    back: '<svg viewBox="0 0 12 20" aria-hidden="true"><path d="M10 2 2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    search: '<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m13 13 5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+    sun: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg>',
+    moon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor"/></svg>',
+  };
+
+  // Dark by default (stages, porches); light for daylight jams. index.html applies it before first paint.
+  function themeButton() {
+    const light = document.documentElement.dataset.theme === 'light';
+    return `<button class="iconbtn" data-theme-toggle aria-label="Switch to ${light ? 'dark' : 'light'} theme">${light ? ICON.moon : ICON.sun}</button>`;
+  }
+  function wireTheme(rerender) {
+    const b = app.querySelector('[data-theme-toggle]');
+    if (b) b.onclick = () => {
+      const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = next;
+      store.set('theme', next);
+      rerender();
+    };
+  }
 
   async function load() {
     const list = (await (await fetch('songs/index.txt')).text()).split('\n').map(s => s.trim()).filter(Boolean);
@@ -27,7 +51,6 @@
   let query = ''; // kept while you visit a song and come back
 
   const norm = t => t.toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
-  const prettyKey = k => k.replace(/^([A-G])b/, '$1♭').replace(/^([A-G])#/, '$1♯');
 
   function renderHome() {
     const counts = {};
@@ -36,23 +59,30 @@
     function rank(k) { const i = KEY_ORDER.indexOf(k); return i < 0 ? 99 : i; }
 
     app.innerHTML = `
-      <header class="topbar home-top">
-        <h1>Jambook</h1>
-        <input type="search" class="search" placeholder="Search ${songs.length} songs" value="${esc(query)}"
-          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Search songs">
+      <header class="navbar home-nav">
+        <div class="navrow">
+          <h1 class="largetitle">Jambook</h1>
+          ${themeButton()}
+        </div>
+        <label class="searchfield">${ICON.search}
+          <input type="search" class="search" placeholder="Search ${songs.length} songs" value="${esc(query)}"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Search songs">
+        </label>
       </header>
+      <main class="home-body">
       <nav class="keygrid" aria-label="Key">
         <button class="keybtn" data-key="all">All<small>${songs.length}</small></button>
-        ${keys.map(k => `<button class="keybtn" data-key="${esc(k)}">${esc(prettyKey(k))}<small>${counts[k]}</small></button>`).join('')}
+        ${keys.map(k => `<button class="keybtn" data-key="${esc(k)}">${esc(pretty(k))}<small>${counts[k]}</small></button>`).join('')}
       </nav>
       <div class="homebar">
-        <div class="seg" role="group" aria-label="Type">
+        <div class="segmented" role="group" aria-label="Type">
           ${[['all', 'All'], ['song', 'Songs'], ['instrumental', 'Tunes']].map(([v, l]) => `<button data-type="${v}">${l}</button>`).join('')}
         </div>
         <p class="count" aria-live="polite"></p>
       </div>
       <section class="recent"></section>
-      <ul class="songlist"></ul>`;
+      <ul class="songlist"></ul>
+      </main>`;
 
     const search = app.querySelector('.search');
     const update = () => {
@@ -64,13 +94,13 @@
       const shown = songs.filter(s => (type === 'all' || s.type === type) &&
         (q ? norm(s.title).includes(q) : key === 'all' || s.key === key));
       app.querySelector('.count').textContent =
-        q ? `${shown.length} match${shown.length === 1 ? '' : 'es'}` : `${shown.length} ${key === 'all' ? 'total' : 'in ' + prettyKey(key)}`;
+        q ? `${shown.length} match${shown.length === 1 ? '' : 'es'}` : `${shown.length} ${key === 'all' ? 'total' : 'in ' + pretty(key)}`;
       app.querySelector('.songlist').innerHTML = shown.length
         ? shown.map(songItem).join('')
         : `<li class="empty">No songs match “${esc(query)}”.</li>`;
       const recent = store.get('recent', []).map(id => songs.find(s => s.id === id)).filter(Boolean);
       app.querySelector('.recent').innerHTML = !q && recent.length
-        ? `<h2>Recent</h2><div class="chips">${recent.map(s => `<a class="chip" href="#/song/${s.id}">${esc(s.title)}</a>`).join('')}</div>` : '';
+        ? `<h2 class="section-h">Recent</h2><div class="chips">${recent.map(s => `<a class="chip" href="#/song/${s.id}">${esc(s.title)}</a>`).join('')}</div>` : '';
     };
 
     search.oninput = () => { query = search.value; update(); };
@@ -82,13 +112,14 @@
       store.set('homeKey', b.dataset.key); query = ''; search.value = ''; update();
     });
     app.querySelectorAll('[data-type]').forEach(b => b.onclick = () => { store.set('homeType', b.dataset.type); update(); });
+    wireTheme(renderHome);
     update();
   }
 
   function songItem(s) {
     return `<li><a href="#/song/${s.id}">
       <span class="t">${esc(s.title)}</span>
-      <span class="k">${esc(prettyKey(s.key))}</span>
+      <span class="k">${esc(pretty(s.key))}</span>
       <small>${s.type === 'instrumental' ? 'tune' : 'song'}${s.form ? ' · ' + esc(s.form) : ''}</small>
     </a></li>`;
   }
@@ -115,13 +146,13 @@
     const key = M.shiftKey(song.keyObj, st.semis);
     const view = J.instruments[st.instrument].prepare(key, J.songChords(song), st);
     st.breaksOpen = breaksOpen;
-    const label = c => (st.numbers ? M.chordNumber(c) : M.chordName(c, view.chartKey));
+    const label = c => pretty(st.numbers ? M.chordNumber(c) : M.chordName(c, view.chartKey));
 
     const sections = song.sections.map(sec => `
       <section class="sec">
         <h3>${esc(sec.name)}</h3>
-        ${sec.rows.map(row => `<div class="row" style="--bars:${row.length}">${row.map(bar =>
-          `<div class="bar${bar.length > 1 ? ' split' : ''}">${bar.map(c => `<span class="ch">${esc(label(c))}</span>`).join('')}</div>`).join('')}</div>`).join('')}
+        <div class="rows">${sec.rows.map(row => `<div class="row" style="--bars:${row.length}">${row.map(bar =>
+          `<div class="bar${bar.length > 1 ? ' split' : ''}">${bar.map(c => `<span class="ch">${esc(label(c))}</span>`).join('')}</div>`).join('')}</div>`).join('')}</div>
       </section>`).join('');
 
     const chords = J.songChords(song);
@@ -132,10 +163,10 @@
     const ideas = song.breaks.filter(b => !b.instrument || b.instrument === st.instrument);
     const breaks = `
       <div class="breaks${st.breaksOpen ? ' open' : ''}">
-        <button class="breaks-bar" data-act="breaks" aria-expanded="${st.breaksOpen}">Breaks <span aria-hidden="true">${st.breaksOpen ? '▾' : '▴'}</span></button>
+        <button class="breaks-bar" data-act="breaks" aria-expanded="${st.breaksOpen}">Breaks <span>${st.breaksOpen ? 'Hide' : 'Show'}</span></button>
         <div class="breaks-body"${st.breaksOpen ? '' : ' hidden'}>
           ${ideas.length ? `<ul class="ideas">${ideas.map(b => `<li>${esc(b.text)}</li>`).join('')}</ul>` : ''}
-          <p class="scale"><b>Scale:</b> ${esc(scale.name)} — ${scale.notes.map(esc).join(' ')}</p>
+          <p class="scale"><b>Scale:</b> ${esc(pretty(scale.name))} — ${scale.notes.map(n => esc(pretty(n))).join(' ')}</p>
           <p class="tabnote">Starter break: chord tones of each bar${view.chartKey.pc === key.pc ? '' : ' (tab relative to the capo)'}. Fill in the gaps with the melody.</p>
           <div class="tabs">${tab.map(t => `<div class="tabsec"><h4>${esc(t.name)}</h4>${t.systems.map(sys => `<pre>${esc(sys.join('\n'))}</pre>`).join('')}</div>`).join('')}</div>
         </div>
@@ -146,31 +177,36 @@
       : song.cue ? `<p class="cue">“${esc(song.cue)}…”</p>` : '';
 
     app.innerHTML = `
-      <header class="topbar song-top">
-        <a class="back" href="#/" aria-label="Back to songs">‹</a>
+      <header class="navbar song-nav">
+        <a class="back" href="#/">${ICON.back}<span>Songs</span></a>
         <div class="titleblock">
           <h1>${esc(song.title)}</h1>
           <p class="meta">${[song.form, song.feel, song.verified ? '' : 'unverified'].filter(Boolean).map(esc).join(' · ')}</p>
         </div>
         <div class="controls">
-          <div class="keystep" role="group" aria-label="Key">
+          <div class="stepper" role="group" aria-label="Key">
             <button data-act="down" aria-label="Key down a half step">−</button>
-            <button data-act="reset" class="keyname${st.semis ? ' moved' : ''}" title="Reset to ${esc(song.key)}">${esc(key.name)}</button>
+            <button data-act="reset" class="keyname${st.semis ? ' moved' : ''}" aria-label="Key ${esc(pretty(key.name))}${st.semis ? ', tap to reset to ' + esc(pretty(song.key)) : ''}">${esc(pretty(key.name))}</button>
             <button data-act="up" aria-label="Key up a half step">+</button>
           </div>
-          <div class="seg" role="group" aria-label="Instrument">
+          <div class="segmented" role="group" aria-label="Instrument">
             ${Object.entries(J.instruments).map(([id, inst]) => `<button data-inst="${id}" class="${id === st.instrument ? 'on' : ''}">${inst.label}</button>`).join('')}
           </div>
-          <button class="toggle${st.numbers ? ' on' : ''}" data-act="numbers" aria-label="Show Nashville numbers">123</button>
+          <button class="pill${st.numbers ? ' on' : ''}" data-act="numbers" aria-pressed="${st.numbers}" aria-label="Nashville numbers">1·4·5</button>
+          ${themeButton()}
         </div>
       </header>
       <main class="songpage">
         <div class="chart"><div class="sections">${sections}</div>${breaks}</div>
         <aside class="side">
-          <button class="banner" data-act="cycle" ${view.bannerCycles ? '' : 'disabled'}>${esc(view.banner)}${view.bannerCycles ? '<small>tap to change</small>' : ''}</button>
-          <div class="diagrams">${view.diagrams.map(d => `<figure><figcaption>${esc(d.name)}</figcaption>${d.frets ? J.fretboard.diagramSvg(d.frets, d.name) : '<p class="nodiag">–</p>'}</figure>`).join('')}</div>
-          ${song.notes.length ? `<div class="notes">${song.notes.map(n => `<p>${esc(n)}</p>`).join('')}</div>` : ''}
-          ${words}
+          <section class="card">
+            <button class="banner" data-act="cycle" ${view.bannerCycles ? '' : 'disabled'}>
+              <span>${esc(pretty(view.banner))}</span>${view.bannerCycles ? '<small>Change</small>' : ''}
+            </button>
+            <div class="diagrams">${view.diagrams.map(d => `<figure><figcaption>${esc(pretty(d.name))}</figcaption>${d.frets ? J.fretboard.diagramSvg(d.frets, d.name) : '<p class="nodiag">–</p>'}</figure>`).join('')}</div>
+          </section>
+          ${song.notes.length ? `<section class="card notes"><h2>Notes</h2>${song.notes.map(n => `<p>${esc(n)}</p>`).join('')}</section>` : ''}
+          ${words ? `<section class="card"><h2>${song.lyrics ? 'Lyrics' : 'First line'}</h2>${words}</section>` : ''}
           ${song.errors.length ? `<div class="errors">${song.errors.map(esc).join('<br>')}</div>` : ''}
         </aside>
       </main>`;
@@ -188,6 +224,7 @@
       rerender();
     });
     app.querySelectorAll('[data-inst]').forEach(b => b.onclick = () => { st.instrument = b.dataset.inst; rerender(); });
+    wireTheme(() => renderSong(song));
     fitAll();
   }
 
@@ -207,7 +244,7 @@
   // Long charts can go two sections across; keep whichever layout gives bigger chords.
   function fitChart(el) {
     if (!el) return;
-    const tryCols = n => { el.style.setProperty('--cols', n); fit(el, 10, 64); return parseFloat(el.style.fontSize); };
+    const tryCols = n => { el.style.setProperty('--cols', n); fit(el, 10, 88); return parseFloat(el.style.fontSize); };
     const one = tryCols(1);
     if (el.children.length > 1 && tryCols(2) <= one) tryCols(1);
   }

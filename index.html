@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#121212">
+  <meta name="theme-color" content="#000000">
+  <script>
+    try { document.documentElement.dataset.theme = JSON.parse(localStorage.getItem('jambook:theme')) || 'dark'; }
+    catch { document.documentElement.dataset.theme = 'dark'; }
+  </script>
   <title>Jambook</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
