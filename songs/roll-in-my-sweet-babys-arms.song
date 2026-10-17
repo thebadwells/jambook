@@ -1,0 +1,23 @@
+title: Roll in My Sweet Baby's Arms
+key: A
+type: song
+form: verse/chorus
+feel: 2/4, fast
+rights: unknown
+cue: "Ain't gonna work on the railroad"
+notes: Three chords, same changes for verse and chorus.
+verified: false
+break: Melody lives in the major pentatonic; hold the 1 chord notes long, the changes are slow.
+break.guitar: Hammer-on from the b3 to the 3 on each 1 chord for a bluesy edge.
+
+[Verse]
+| 1 | 1 | 1 | 1 |
+| 1 | 1 | 5 | 5 |
+| 1 | 1 | 4 | 4 |
+| 1 | 5 | 1 | 1 |
+
+[Chorus]
+| 1 | 1 | 1 | 1 |
+| 1 | 1 | 5 | 5 |
+| 1 | 1 | 4 | 4 |
+| 1 | 5 | 1 | 1 |

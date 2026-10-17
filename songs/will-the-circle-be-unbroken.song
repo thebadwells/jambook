@@ -1,0 +1,24 @@
+title: Will the Circle Be Unbroken
+key: G
+type: song
+form: verse/chorus
+feel: 4/4, medium
+rights: copyrighted
+cue: "I was standing by my window"
+notes: Verse and chorus use the same progression. Everybody sings the chorus.
+verified: false
+break: Play the melody plainly — this is a sing-along, so keep breaks short and recognisable.
+break.guitar: Carter-style: melody on the bass strings, strum in the gaps.
+break.mandolin: Tremolo the long notes at the end of each line.
+
+[Verse]
+| 1 | 1 | 4 | 1 |
+| 1 | 1 | 5 | 5 |
+| 1 | 1 | 4 | 1 |
+| 1 | 5 | 1 | 1 |
+
+[Chorus]
+| 1 | 1 | 4 | 1 |
+| 1 | 1 | 5 | 5 |
+| 1 | 1 | 4 | 1 |
+| 1 | 5 | 1 | 1 |

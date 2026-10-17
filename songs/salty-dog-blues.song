@@ -1,0 +1,21 @@
+title: Salty Dog Blues
+key: G
+type: song
+form: verse/chorus
+feel: 2/4, fast
+rights: unknown
+cue: "Standin' on the corner with the low down blues"
+notes: Ragtime circle: 1 – 6 – 2 – 5. Kick-off over the chorus.
+notes: Ending: tag the last line of the chorus.
+verified: false
+break: Lean on the major 3rd of each chord in the circle (the 3rd of the 6, 2 and 5 chords) — that's the ragtime sound.
+break.guitar: Bass-note runs into each change; finish with a G-run on the last 1.
+break.mandolin: Double-stop the chord tones and slide into each new chord a half step below.
+
+[Verse]
+| 1 | 1 | 6 | 6 |
+| 2 | 2 | 5 | 5 |
+
+[Chorus]
+| 1 | 1 | 6 | 6 |
+| 2 | 5 | 1 | 1 |

@@ -1,0 +1,33 @@
+title: Wayfaring Stranger
+key: Am
+type: song
+form: verse/chorus
+feel: 4/4, slow
+rights: public-domain
+notes: Minor key. Numbers are relative to the major scale: b6 = F, b3 = C in Am.
+verified: false
+break: Slow and spacious. Let notes ring; minor pentatonic over the verse, add the b6 over the chorus.
+break.mandolin: Tremolo the melody; switch to chop chords for the second time through.
+
+[Verse]
+| 1m | 1m | 4m | 1m |
+| 1m | 1m | 5 | 1m |
+| 1m | 1m | 4m | 1m |
+| 1m | 1m | 5 | 1m |
+
+[Chorus]
+| b6 | b6 | b3 | b3 |
+| b6 | b6 | 5 | 5 |
+| 1m | 1m | 4m | 1m |
+| 1m | 1m | 5 | 1m |
+
+[lyrics]
+I am a poor wayfaring stranger
+While traveling through this world of woe
+Yet there's no sickness, toil, nor danger
+In that bright world to which I go
+
+I'm going there to see my father
+I'm going there no more to roam
+I'm only going over Jordan
+I'm only going over home
